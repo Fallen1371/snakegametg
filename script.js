@@ -106,9 +106,9 @@ function handleKey(e) {
   }
 }
 
-// Отсчёт перед запуском
+// Отсчёт перед запуском - изменено на 5 секунд
 function startCountdown(callback) {
-  let count = 3;
+  let count = 5;
   countdownEl.textContent = count;
   countdownEl.classList.remove("hidden");
 
