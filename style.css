@@ -68,3 +68,15 @@ canvas {
 #restartBtn:hover {
   background-color: #ef6c00;
 }
+
+#countdown {
+  font-size: 48px;
+  font-weight: bold;
+  margin-top: 15px;
+  color: #ffeb3b;
+  transition: all 0.3s ease;
+}
+
+.hidden {
+  display: none;
+}

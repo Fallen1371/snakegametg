@@ -5,6 +5,7 @@ const scoreEl = document.getElementById("score");
 const highscoreEl = document.getElementById("highscore");
 const restartBtn = document.getElementById("restartBtn");
 const controlButtons = document.querySelectorAll(".ctrl-btn");
+const countdownEl = document.getElementById("countdown");
 
 const gridSize = 20;
 const tileCount = canvas.width / gridSize;
@@ -105,14 +106,34 @@ function handleKey(e) {
   }
 }
 
+// Отсчёт перед запуском
+function startCountdown(callback) {
+  let count = 3;
+  countdownEl.textContent = count;
+  countdownEl.classList.remove("hidden");
+
+  const interval = setInterval(() => {
+    count--;
+    if (count > 0) {
+      countdownEl.textContent = count;
+    } else {
+      clearInterval(interval);
+      countdownEl.classList.add("hidden");
+      callback(); // запускаем игру
+    }
+  }, 1000);
+}
+
 // События
 document.addEventListener("keydown", handleKey);
-restartBtn.addEventListener("click", () => initGame());
-
 controlButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     handleDirection(btn.dataset.dir);
   });
+});
+restartBtn.addEventListener("click", () => {
+  running = false;
+  startCountdown(initGame);
 });
 
 // Старт
