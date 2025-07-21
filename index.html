@@ -8,9 +8,12 @@
 </head>
 <body>
   <h1>Змейка 🐍</h1>
-  <p id="score">Очки: 0</p>
+  <div id="score-container">
+    <span id="score">Очки: 0</span>
+    <span id="highscore">Макс: 0</span>
+  </div>
   <canvas id="gameCanvas" width="400" height="400"></canvas>
-  <button id="restartBtn">🔄 Перезапустить</button>
+  <button id="restartBtn">🔄 Начать заново</button>
   <script src="script.js"></script>
 </body>
 </html>
