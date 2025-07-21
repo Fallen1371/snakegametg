@@ -24,14 +24,40 @@ canvas {
   display: block;
   margin: 0 auto;
   border: 2px solid #666;
-  touch-action: none;
+}
+
+#controls {
+  margin-top: 15px;
+}
+
+#controls .row {
+  display: flex;
+  justify-content: center;
+  margin: 5px 0;
+}
+
+.ctrl-btn {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  font-size: 24px;
+  padding: 15px 20px;
+  margin: 5px;
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 60px;
+  transition: background-color 0.2s ease;
+}
+
+.ctrl-btn:hover {
+  background-color: #43a047;
 }
 
 #restartBtn {
-  margin-top: 15px;
+  margin-top: 20px;
   padding: 12px 25px;
   font-size: 16px;
-  background-color: #4caf50;
+  background-color: #f57c00;
   color: white;
   border: none;
   border-radius: 8px;
@@ -40,5 +66,5 @@ canvas {
 }
 
 #restartBtn:hover {
-  background-color: #45a049;
+  background-color: #ef6c00;
 }

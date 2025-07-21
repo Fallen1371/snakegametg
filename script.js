@@ -4,6 +4,7 @@ const ctx = canvas.getContext("2d");
 const scoreEl = document.getElementById("score");
 const highscoreEl = document.getElementById("highscore");
 const restartBtn = document.getElementById("restartBtn");
+const controlButtons = document.querySelectorAll(".ctrl-btn");
 
 const gridSize = 20;
 const tileCount = canvas.width / gridSize;
@@ -46,7 +47,6 @@ function drawGame() {
 function moveSnake() {
   const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-  // Проверка на столкновение со стеной или собой
   if (
     head.x < 0 || head.x >= tileCount ||
     head.y < 0 || head.y >= tileCount ||
@@ -87,57 +87,35 @@ function gameLoop() {
   drawGame();
 }
 
-function handleKey(e) {
-  switch (e.key) {
-    case "ArrowUp": if (dy === 0) [dx, dy] = [0, -1]; break;
-    case "ArrowDown": if (dy === 0) [dx, dy] = [0, 1]; break;
-    case "ArrowLeft": if (dx === 0) [dx, dy] = [-1, 0]; break;
-    case "ArrowRight": if (dx === 0) [dx, dy] = [1, 0]; break;
+function handleDirection(dir) {
+  switch (dir) {
+    case "up": if (dy === 0) [dx, dy] = [0, -1]; break;
+    case "down": if (dy === 0) [dx, dy] = [0, 1]; break;
+    case "left": if (dx === 0) [dx, dy] = [-1, 0]; break;
+    case "right": if (dx === 0) [dx, dy] = [1, 0]; break;
   }
 }
 
-function setupSwipeControls() {
-  let touchStartX = 0;
-  let touchStartY = 0;
-
-  canvas.addEventListener("touchstart", (e) => {
-    const touch = e.touches[0];
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
-  });
-
-  canvas.addEventListener("touchmove", (e) => {
-    if (!running) return;
-
-    const touch = e.touches[0];
-    const dxTouch = touch.clientX - touchStartX;
-    const dyTouch = touch.clientY - touchStartY;
-
-    if (Math.abs(dxTouch) > Math.abs(dyTouch)) {
-      if (dxTouch > 30 && dx === 0) {
-        [dx, dy] = [1, 0];
-      } else if (dxTouch < -30 && dx === 0) {
-        [dx, dy] = [-1, 0];
-      }
-    } else {
-      if (dyTouch > 30 && dy === 0) {
-        [dx, dy] = [0, 1];
-      } else if (dyTouch < -30 && dy === 0) {
-        [dx, dy] = [0, -1];
-      }
-    }
-    touchStartX = touch.clientX;
-    touchStartY = touch.clientY;
-  }, { passive: true });
+function handleKey(e) {
+  switch (e.key) {
+    case "ArrowUp": handleDirection("up"); break;
+    case "ArrowDown": handleDirection("down"); break;
+    case "ArrowLeft": handleDirection("left"); break;
+    case "ArrowRight": handleDirection("right"); break;
+  }
 }
 
-// Инициализация
+// События
 document.addEventListener("keydown", handleKey);
-restartBtn.addEventListener("click", () => {
-  initGame();
-});
-setupSwipeControls();
+restartBtn.addEventListener("click", () => initGame());
 
+controlButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    handleDirection(btn.dataset.dir);
+  });
+});
+
+// Старт
 highScore = parseInt(localStorage.getItem("highScore")) || 0;
 highscoreEl.textContent = "Макс: " + highScore;
 
