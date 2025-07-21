@@ -1,112 +1,108 @@
-const canvas = document.getElementById('game-board');
-const ctx = canvas.getContext('2d');
-const scoreDisplay = document.getElementById('score');
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+const scoreEl = document.getElementById("score");
+const restartBtn = document.getElementById("restartBtn");
 
-const gridSize = 10;
-const canvasSize = 300;
-const speed = 100; // Миллисекунды между кадрами
+const gridSize = 20;
+const tileCount = canvas.width / gridSize;
 
-let snake = [{ x: 50, y: 50 }];
-let direction = 'RIGHT';
-let food = { x: 70, y: 50 };
-let score = 0;
+let snake, apple, dx, dy, score, running;
 
-function drawBoard() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+function initGame() {
+  snake = [{ x: 10, y: 10 }];
+  dx = 1;
+  dy = 0;
+  score = 0;
+  apple = spawnApple();
+  running = true;
+  scoreEl.textContent = "Очки: 0";
+}
 
-    // Рисуем змейку
-    snake.forEach((segment, index) => {
-        ctx.fillStyle = index === 0 ? '#00FF00' : '#008000'; // Голова змейки зелёная, тело темнее
-        ctx.fillRect(segment.x, segment.y, gridSize, gridSize);
-    });
+function spawnApple() {
+  return {
+    x: Math.floor(Math.random() * tileCount),
+    y: Math.floor(Math.random() * tileCount),
+  };
+}
 
-    // Рисуем еду
-    ctx.fillStyle = '#FF0000';
-    ctx.fillRect(food.x, food.y, gridSize, gridSize);
+function drawCell(x, y, color) {
+  ctx.fillStyle = color;
+  ctx.fillRect(x * gridSize, y * gridSize, gridSize - 2, gridSize - 2);
+}
+
+function drawGame() {
+  ctx.fillStyle = "#111";
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  for (let segment of snake) {
+    drawCell(segment.x, segment.y, "#0f0");
+  }
+
+  drawCell(apple.x, apple.y, "#f00");
 }
 
 function moveSnake() {
-    let head = { ...snake[0] };
+  const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-    switch (direction) {
-        case 'UP': head.y -= gridSize; break;
-        case 'DOWN': head.y += gridSize; break;
-        case 'LEFT': head.x -= gridSize; break;
-        case 'RIGHT': head.x += gridSize; break;
-    }
+  // Столкновение со стеной
+  if (
+    head.x < 0 || head.x >= tileCount ||
+    head.y < 0 || head.y >= tileCount
+  ) {
+    gameOver();
+    return;
+  }
 
-    // Если змейка съела еду
-    if (head.x === food.x && head.y === food.y) {
-        score++;
-        scoreDisplay.textContent = `Очки: ${score}`;
-        generateFood();
-    } else {
-        snake.pop(); // Убираем хвост
-    }
+  // Столкновение с собой
+  if (snake.some((segment, i) => i !== 0 && segment.x === head.x && segment.y === head.y)) {
+    gameOver();
+    return;
+  }
 
-    snake.unshift(head); // Добавляем новый элемент в начало
+  snake.unshift(head);
+
+  // Съели яблоко?
+  if (head.x === apple.x && head.y === apple.y) {
+    score += 1;
+    scoreEl.textContent = "Очки: " + score;
+    apple = spawnApple();
+  } else {
+    snake.pop();
+  }
 }
 
-function generateFood() {
-    food.x = Math.floor(Math.random() * (canvasSize / gridSize)) * gridSize;
-    food.y = Math.floor(Math.random() * (canvasSize / gridSize)) * gridSize;
-}
-
-function checkCollisions() {
-    const head = snake[0];
-
-    // Столкновение с границами
-    if (head.x < 0 || head.x >= canvasSize || head.y < 0 || head.y >= canvasSize) {
-        return true;
-    }
-
-    // Столкновение с самим собой
-    for (let i = 1; i < snake.length; i++) {
-        if (head.x === snake[i].x && head.y === snake[i].y) {
-            return true;
-        }
-    }
-
-    return false;
+function gameOver() {
+  running = false;
+  alert("Игра окончена! Ваш счёт: " + score);
 }
 
 function gameLoop() {
-    moveSnake();
-    drawBoard();
-
-    if (checkCollisions()) {
-        alert('Игра окончена! Ваш счёт: ' + score);
-        resetGame();
-        return;
-    }
-
-    setTimeout(gameLoop, speed);
+  if (!running) return;
+  moveSnake();
+  drawGame();
 }
 
-function resetGame() {
-    snake = [{ x: 50, y: 50 }];
-    direction = 'RIGHT';
-    score = 0;
-    scoreDisplay.textContent = `Очки: ${score}`;
-    generateFood();
+function handleKey(e) {
+  switch (e.key) {
+    case "ArrowUp":
+      if (dy === 0) [dx, dy] = [0, -1];
+      break;
+    case "ArrowDown":
+      if (dy === 0) [dx, dy] = [0, 1];
+      break;
+    case "ArrowLeft":
+      if (dx === 0) [dx, dy] = [-1, 0];
+      break;
+    case "ArrowRight":
+      if (dx === 0) [dx, dy] = [1, 0];
+      break;
+  }
 }
 
-function changeDirection(newDirection) {
-    if (
-        (newDirection === 'UP' && direction !== 'DOWN') ||
-        (newDirection === 'DOWN' && direction !== 'UP') ||
-        (newDirection === 'LEFT' && direction !== 'RIGHT') ||
-        (newDirection === 'RIGHT' && direction !== 'LEFT')
-    ) {
-        direction = newDirection;
-    }
-}
+document.addEventListener("keydown", handleKey);
+restartBtn.addEventListener("click", () => {
+  initGame();
+});
 
-document.getElementById('up').addEventListener('click', () => changeDirection('UP'));
-document.getElementById('down').addEventListener('click', () => changeDirection('DOWN'));
-document.getElementById('left').addEventListener('click', () => changeDirection('LEFT'));
-document.getElementById('right').addEventListener('click', () => changeDirection('RIGHT'));
-
-// Начинаем игру
-resetGame();
-gameLoop();
+initGame();
+setInterval(gameLoop, 150);
